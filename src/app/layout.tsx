@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} min-h-screen`}>
         <Header />
-        <main className="flex flex-col items-center justify-between p-24">
+        <main className="container m-auto flex flex-col items-center justify-between p-2 md:p-6 sm:p-2">
           <ApolloWrapper>{children}</ApolloWrapper>
         </main>
         <Footer />

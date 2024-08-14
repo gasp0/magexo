@@ -1,0 +1,30 @@
+query Products {
+  products(filter: { category_id: { eq: "2" } }) {
+    total_count
+    items {
+      description {
+        html
+      }
+      image {
+        url
+      }
+      manufacturer
+      meta_description
+      meta_title
+      meta_keyword
+      name
+      price {
+        regularPrice {
+          amount {
+            currency
+            value
+          }
+        }
+      }
+      sku
+      thumbnail {
+        url
+      }
+    }
+  }
+}
