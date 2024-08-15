@@ -1,126 +1,126 @@
-import { gql } from '@apollo/client';
 import { getClient } from '@/lib/client';
-import { ProductsQuery, useProductsQuery } from '@/generated/graphql';
-import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { Aggregations, CategoryUrlPageProps, Product } from '@/types/general';
+import { GET_PRODUCTS_BY_CATEGORY } from '@/queries/getQueries';
+import ProductGrid from '@/app/components/ProductGrid';
+import Image from 'next/image';
+import Filter from '@/app/components/Filter';
 
-const GET_PRODUCTS_BY_CATEGORY = gql`
-  query getProductsByCategory($url_key: String!) {
-    categoryList(filters: { url_key: { eq: $url_key } }) {
-      products {
-        items {
-          sku
-          name
-          url_key
-          thumbnail {
-            url
-          }
-          price {
-            regularPrice {
-              amount {
-                value
-                currency
-              }
-            }
-          }
-        }
-      }
-    }
-    products(filter: { category_url_path: { eq: $url_key } }) {
-      aggregations {
-        attribute_code
-        count
-        label
-        position
-        options {
-          count
-          label
-          value
-        }
-      }
-    }
-  }
-`;
+export default async function Products({
+  params,
+  searchParams,
+}: CategoryUrlPageProps) {
+  const fashionMaterial = searchParams.fashion_material || null;
+  const fashionColor = searchParams.fashion_color || null;
+  const fashionStyle = searchParams.fashion_style || null;
+  const hasVideo = searchParams.has_video || null;
 
-interface CategoryUrlPageProps {
-  params: {
-    category_url_key: string;
-  };
-}
-
-interface Product {
-  name: string;
-  sku: string;
-  thumbnail: {
-    url: string;
-  };
-  price: {
-    regularPrice: {
-      amount: {
-        value: number;
-        currency: string;
-      };
-    };
-  };
-}
-
-interface CategoryList {
-  categoryList: Array<{
-    products: {
-      items: Product[];
-    };
-  }>;
-}
-
-interface ProductsProps {
-  data: CategoryList;
-}
-
-export default async function Products({ params }: CategoryUrlPageProps) {
-  const { loading, error, data } = await getClient().query<ProductsQuery>({
+  const { loading, error, data } = await getClient().query({
     query: GET_PRODUCTS_BY_CATEGORY,
-    variables: { url_key: params.category_url_key },
+    variables: {
+      category_url_key: params.category_url_key,
+      fashion_material: fashionMaterial,
+      fashion_color: fashionColor,
+      fashion_style: fashionStyle,
+      has_video: hasVideo,
+    },
   });
 
-  // const { loading, error, data } = await useProductsQuery();
-  // const ProductsGrid: React.FC<ProductsProps> = ({ data }) => {
-  const products = data.categoryList[0]?.products.items;
-  const aggregations = data.products.aggregations;
+  const products: Product[] = data.products.items;
+  const aggregations: Aggregations[] = data.products.aggregations.filter(
+    (agg: Aggregations) =>
+      agg.label !== 'Category' &&
+      agg.label !== 'Price' &&
+      agg.label !== 'Has Video'
+  );
+  const categoryName = data.categories.items[0]?.name;
 
-  // Manage client-side state for filtering
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
-  const [selectedFilters, setSelectedFilters] = useState<{
-    [key: string]: string;
-  }>({});
+  const removeFilter = (param: string) => {
+    const paramsClone = new URLSearchParams(searchParams);
+    paramsClone.delete(param);
+    return Object.fromEntries(paramsClone.entries());
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">{params.category_url_key}</h1>
+      <h1 className="text-3xl font-bold mb-6">{categoryName}</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {/* Aggregations Column */}
-        <div className="md:col-span-1">
-          <h2 className="text-2xl font-bold">Filters</h2>
-          {aggregations.map((agg) => (
-            <div key={agg.attribute_code} className="mb-4">
-              <h3 className="text-lg font-semibold">{agg.label}</h3>
-              <ul className="ml-4">
-                {agg.options.map((option) => (
-                  <li key={option.value} className="text-gray-700">
-                    {option.label} ({option.count})
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <Filter
+          aggregations={aggregations}
+          searchParams={searchParams}
+          params={params}
+          removeFilter={removeFilter}
+        />
+
+        {/* <div className="md:col-span-1">
+          <h2 className="text-2xl font-bold mb-4">
+            Filters{' '}
+            {Object.keys(searchParams).length > 0 && (
+              <span className="float-right">
+                <Link
+                  href={{
+                    pathname: `/category/${params.category_url_key}`,
+                  }}
+                  className="text-red-600 "
+                >
+                  x
+                </Link>
+              </span>
+            )}
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-1">
+            {aggregations.map((agg) => (
+              <div key={agg.label} className="mb-4">
+                <h3 className="text-xl font-semibold min-h-12 sm:min-h-6 sm:text-lg">
+                  {agg.label}{' '}
+                  {searchParams[agg.attribute_code] && (
+                    <span className="sm:float-right text-red-600">
+                      <Link
+                        href={{
+                          pathname: `/category/${params.category_url_key}`,
+                          query: {
+                            ...removeFilter(agg.attribute_code),
+                          },
+                        }}
+                      >
+                        x
+                      </Link>
+                    </span>
+                  )}
+                </h3>
+                <ul className="sm:ml-4">
+                  {agg.options.map((option) => (
+                    <li
+                      key={option.value}
+                      className="text-gray-700 cursor-pointer text-sm sm:text-base  hover:text-blue-500"
+                    >
+                      <Link
+                        href={{
+                          pathname: `/category/${params.category_url_key}`,
+                          query: {
+                            ...searchParams,
+                            [agg.attribute_code]: option.value,
+                          },
+                        }}
+                      >
+                        {option.label} ({option.count})
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div> */}
 
         {/* Products Column(s) */}
-        <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ProductGrid products={products} />
+        {/* <div className="sm:col-span-2 md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <div key={product.sku}>
               <Link href={`/${product.url_key}`}>
@@ -144,7 +144,7 @@ export default async function Products({ params }: CategoryUrlPageProps) {
               </Link>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

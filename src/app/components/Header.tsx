@@ -1,5 +1,4 @@
 import Navbar from './NavBar';
-
 import Image from 'next/image';
 
 export default function Header() {
@@ -10,7 +9,6 @@ export default function Header() {
 
 "
       >
-        {/* <strong className="text-5xl text-center m-20">Header logo</strong> */}
         <Image
           src={'../next.svg'}
           width={300}

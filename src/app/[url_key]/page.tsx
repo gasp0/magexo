@@ -1,34 +1,8 @@
 import React from 'react';
 import { gql } from '@apollo/client';
 import { getClient } from '@/lib/client';
-import { ProductsQuery, useProductsQuery } from '@/generated/graphql';
 import Image from 'next/image';
-
-interface ProductDetailPageProps {
-  params: {
-    url_key: string;
-  };
-}
-
-interface Product {
-  sku: string;
-  name: string;
-  url_key: string;
-  thumbnail: {
-    url: string;
-  };
-  price: {
-    regularPrice: {
-      amount: {
-        value: number;
-        currency: string;
-      };
-    };
-  };
-  description: {
-    html: string;
-  };
-}
+import { Product, ProductDetailPageProps } from '@/types/general';
 
 const GET_PRODUCT_BY_URL_KEY = gql`
   query getProductByUrlKey($url_key: String!) {
@@ -59,7 +33,7 @@ const GET_PRODUCT_BY_URL_KEY = gql`
 export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
-  const { loading, error, data } = await getClient().query<ProductsQuery>({
+  const { loading, error, data } = await getClient().query({
     query: GET_PRODUCT_BY_URL_KEY,
     variables: { url_key: params.url_key },
   });
@@ -83,10 +57,11 @@ export default async function ProductDetailPage({
         <div className="mt-4 md:mt-0 md:ml-8">
           <h1 className="text-2xl font-bold">{product.name}</h1>
           <p className="text-gray-600">SKU: {product.sku}</p>
-          <p className="text-xl text-gray-800 font-bold">
+          <p className="text-2xl text-red-800 font-bold my-3">
             {product.price.regularPrice.amount.value}{' '}
             {product.price.regularPrice.amount.currency}
           </p>
+          <h2 className="text-xl font-bold">Description</h2>
           <div
             className="mt-4 text-gray-700"
             dangerouslySetInnerHTML={{ __html: product.description.html }}

@@ -1,72 +1,15 @@
-import { gql } from '@apollo/client';
 import { getClient } from '@/lib/client';
-import { ProductsQuery, useProductsQuery } from '@/generated/graphql';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const GET_PRODUCTS = gql`
-  query {
-    categoryList {
-      products {
-        total_count
-        items {
-          name
-          sku
-          meta_title
-          url_key
-          thumbnail {
-            url
-          }
-          price {
-            regularPrice {
-              amount {
-                value
-                currency
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-interface Product {
-  name: string;
-  sku: string;
-  thumbnail: {
-    url: string;
-  };
-  price: {
-    regularPrice: {
-      amount: {
-        value: number;
-        currency: string;
-      };
-    };
-  };
-}
-
-interface CategoryList {
-  categoryList: Array<{
-    products: {
-      items: Product[];
-    };
-  }>;
-}
-
-interface ProductsProps {
-  data: CategoryList;
-}
+import { GET_PRODUCTS } from '@/queries/getQueries';
+import { Product } from '@/types/general';
 
 export default async function Products() {
-  const { loading, error, data } = await getClient().query<ProductsQuery>({
+  const { loading, error, data } = await getClient().query({
     query: GET_PRODUCTS,
   });
 
-  // const { loading, error, data } = await useProductsQuery();
-  // const ProductsGrid: React.FC<ProductsProps> = ({ data }) => {
-  const products = data.categoryList[0]?.products.items;
+  const products: Product[] = data.categoryList[0]?.products.items;
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
