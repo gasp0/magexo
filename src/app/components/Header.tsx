@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Navbar from './NavBar';
 import Image from 'next/image';
 
@@ -9,13 +10,9 @@ export default function Header() {
 
 "
       >
-        <Image
-          src={'../next.svg'}
-          width={300}
-          height={100}
-          alt={'logo'}
-          className="h-auto m-20 self-center"
-        />
+        <Link href="/" className="h-auto m-20 self-center">
+          <Image src={'../next.svg'} width={300} height={100} alt={'logo'} />
+        </Link>
         <Navbar />
       </div>
     </header>
