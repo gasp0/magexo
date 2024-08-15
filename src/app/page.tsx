@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <div>
-      <h1>Welcome to my eshop</h1>
+      <h1 className="text-3xl font-bold mb-6">Welcome to my eshop</h1>
       <div className="p-2">
         Pouzite technologie:
         <ul>
