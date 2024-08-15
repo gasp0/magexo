@@ -40,14 +40,21 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ categories }) => {
         }`}
       >
         <li className="text-lg p-4 px-8 font-bold hover:text-fuchsia-700">
-          <Link href="/">Home</Link>
+          <Link onClick={() => setIsOpen(false)} href="/">
+            Home
+          </Link>
         </li>
         {categories.map((category) => (
           <li
             key={category.id}
             className="text-lg p-4 px-8 font-bold hover:text-fuchsia-700"
           >
-            <Link href={`/category/${category.url_path}`}>{category.name}</Link>
+            <Link
+              onClick={() => setIsOpen(false)}
+              href={`/category/${category.url_path}`}
+            >
+              {category.name}
+            </Link>
           </li>
         ))}
       </ul>
