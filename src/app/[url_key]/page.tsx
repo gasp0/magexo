@@ -1,34 +1,8 @@
 import React from 'react';
-import { gql } from '@apollo/client';
 import { getClient } from '@/lib/client';
 import Image from 'next/image';
 import { Product, ProductDetailPageProps } from '@/types/general';
-
-const GET_PRODUCT_BY_URL_KEY = gql`
-  query getProductByUrlKey($url_key: String!) {
-    products(filter: { url_key: { eq: $url_key } }) {
-      items {
-        sku
-        name
-        url_key
-        thumbnail {
-          url
-        }
-        price {
-          regularPrice {
-            amount {
-              value
-              currency
-            }
-          }
-        }
-        description {
-          html
-        }
-      }
-    }
-  }
-`;
+import { GET_PRODUCT_BY_URL_KEY } from '@/queries/getQueries';
 
 export default async function ProductDetailPage({
   params,

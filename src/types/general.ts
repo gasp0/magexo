@@ -13,6 +13,17 @@ export interface CategoryList {
   }>;
 }
 
+export interface CategoryUrlPageProps {
+  params: {
+    category_url_key: string;
+  };
+  searchParams: any;
+}
+
+export interface CategoryUrlParams {
+  category_url_key: string;
+}
+
 export interface Product {
   name: string;
   sku: string;
@@ -65,17 +76,6 @@ export interface Aggregations {
   count: number;
   attribute_code: string;
   options: AggregationOptions[];
-}
-
-export interface CategoryUrlPageProps {
-  params: {
-    category_url_key: string;
-  };
-  searchParams: any;
-}
-
-export interface CategoryUrlParams {
-  category_url_key: string;
 }
 
 export interface ProductGridProps {

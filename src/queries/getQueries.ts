@@ -92,3 +92,29 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
     }
   }
 `;
+
+export const GET_PRODUCT_BY_URL_KEY = gql`
+  query getProductByUrlKey($url_key: String!) {
+    products(filter: { url_key: { eq: $url_key } }) {
+      items {
+        sku
+        name
+        url_key
+        thumbnail {
+          url
+        }
+        price {
+          regularPrice {
+            amount {
+              value
+              currency
+            }
+          }
+        }
+        description {
+          html
+        }
+      }
+    }
+  }
+`;
